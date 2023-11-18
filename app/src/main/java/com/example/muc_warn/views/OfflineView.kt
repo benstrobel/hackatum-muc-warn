@@ -24,44 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.muc_warn.components.WarningCard
 
 @Composable
 fun OfflineView() {
     Column() {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Red.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)) // Red background with opacity
-                    .border(1.dp, Color.Red, shape = RoundedCornerShape(8.dp)) // Red border
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Rounded.Warning, // Replace with your icon resource
-                    contentDescription = null, // Provide a content description for accessibility
-                    modifier = Modifier.size(30.dp) // Adjust the size of the icon as needed
-                )
-
-                Spacer(modifier = Modifier.width(8.dp)) // Add some space between the icon and text
-
-                Column(
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    Text(
-                        text = "Achtung",
-                        color = Color.White, // Text color
-                        fontWeight = FontWeight.Bold, // Text style
-                    )
-
-                    Text(
-                        text = "Es konnte keine Verbindung zum Internet aufgebaut werden. Du befindest dich im Notfallmodus.",
-                        color = Color.White, // Text color
-                        fontWeight = FontWeight.Normal, // Text style
-                    )
-                }
-            }
-        }
+        WarningCard(title = "Achtung", subtitle = "Es konnte keine Verbindung zum Internet aufgebaut werden. Du befindest dich im Notfallmodus.")
     }
 }
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IndicatorTopBar(isNetworkAvailable: MutableState<Boolean>, title: String) {
-    TopAppBar(modifier = Modifier.fillMaxWidth().padding(10.dp) ,title = { Text(text = title) }, actions = { StatusIndicator(isNetworkAvailable = isNetworkAvailable) })
+    TopAppBar(modifier = Modifier.fillMaxWidth().padding(10.dp),title = { Text(text = title) }, actions = { StatusIndicator(isNetworkAvailable = isNetworkAvailable) })
 }
 
 @Composable
