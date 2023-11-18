@@ -1,5 +1,6 @@
 package com.muc.warn
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,18 +16,23 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
     private val peers = mutableListOf<WifiP2pDevice>()
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
         val refreshedPeers = peerList.deviceList
-        /*if (refreshedPeers != peers) {
+        if (refreshedPeers != peers) {
             peers.clear()
             peers.addAll(refreshedPeers)
 
             // If an AdapterView is backed by this data, notify it
             // of the change. For instance, if you have a ListView of
             // available peers, trigger an update.
-            (listAdapter as WiFiPeerListAdapter).notifyDataSetChanged()
+            // TODO Do we need this? (listAdapter as WiFiPeerListAdapter).notifyDataSetChanged()
+            // TODO Since we dont want to display the list it shouldnt be a problem
 
             // Perform any other updates needed based on the new list of
             // peers connected to the Wi-Fi P2P network.
-        }*/
+            if (peers.isEmpty()) {
+                Log.d(TAG, "No devices found")
+                return@PeerListListener
+            }
+        }
 
         if (peers.isEmpty()) {
             Log.d(TAG, "No devices found")
@@ -34,6 +40,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         when(intent.action) {
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
@@ -46,6 +53,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 }
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
+                manager.requestPeers(channel, peerListListener)
                 Log.d(this.javaClass.name, "Received WIFI_P2P_PEERS_CHANGED_ACTION Event")
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
