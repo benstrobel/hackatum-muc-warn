@@ -13,20 +13,20 @@ import android.util.Log
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
-class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private val channel: WifiP2pManager.Channel, private val activity: MainActivity): BroadcastReceiver() {
+class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private val channel: WifiP2pManager.Channel, private val wiFiDirectManager: WiFiDirectManager): BroadcastReceiver() {
     companion object {
         val TAG = "WiFiDirectBroadcastReceiver"
     }
 
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
         val refreshedPeers = peerList.deviceList
-        if (refreshedPeers != activity.peers) {
-            activity.peers.clear()
-            activity.peers.addAll(refreshedPeers)
-            val invitedPeers = activity.peers.filter { x -> x.status == WifiP2pDevice.INVITED }.size
-            val availablePeers = activity.peers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
-            val connectedPeers = activity.peers.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
-            Log.d(TAG, "Updated peerlist size: " + activity.peers.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
+        if (refreshedPeers != wiFiDirectManager.peers) {
+            wiFiDirectManager.peers.clear()
+            wiFiDirectManager.peers.addAll(refreshedPeers)
+            val invitedPeers = wiFiDirectManager.peers.filter { x -> x.status == WifiP2pDevice.INVITED }.size
+            val availablePeers = wiFiDirectManager.peers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
+            val connectedPeers = wiFiDirectManager.peers.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
+            Log.d(TAG, "Updated peerlist size: " + wiFiDirectManager.peers.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
 
             // If an AdapterView is backed by this data, notify it
             // of the change. For instance, if you have a ListView of
@@ -36,13 +36,13 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
 
             // Perform any other updates needed based on the new list of
             // peers connected to the Wi-Fi P2P network.
-            if (activity.peers.isEmpty()) {
+            if (wiFiDirectManager.peers.isEmpty()) {
                 Log.d(TAG, "No devices found")
                 return@PeerListListener
             }
         }
 
-        if (activity.peers.isEmpty()) {
+        if (wiFiDirectManager.peers.isEmpty()) {
             Log.d(TAG, "No devices found")
             return@PeerListListener
         }
@@ -57,13 +57,13 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         // (server).
         if (info.groupFormed && info.isGroupOwner) {
             Log.d(TAG, "I am owner | Owner Address: $groupOwnerAddress")
-            activity.groupOwnerAddress = groupOwnerAddress
+            wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
             // Do whatever tasks are specific to the group owner.
             // One common case is creating a group owner thread and accepting
             // incoming connections.
         } else if (info.groupFormed) {
             Log.d(TAG, "I am client | Owner Address: $groupOwnerAddress")
-            activity.groupOwnerAddress = groupOwnerAddress
+            wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
             // The other device acts as the peer (client). In this case,
             // you'll want to create a peer thread that connects
             // to the group owner.
@@ -78,7 +78,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 Log.d(TAG, "Received WIFI_P2P_STATE_CHANGED_ACTION Event | Value " + state)
                 when(state) {
                     WifiP2pManager.WIFI_P2P_STATE_ENABLED -> {
-                        activity.setIsWifiP2pEnabled(true)
+                        wiFiDirectManager.isWifiP2pEnabled = true
                     }
                 }
             }
