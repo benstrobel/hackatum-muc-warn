@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var manager: WifiP2pManager
 
     private var isWifiP2pEnabled = false
+    private var discoveryMode = false
     public var groupOwnerAddress: String? = ""
 
     fun setIsWifiP2pEnabled(isWifiP2pEnabled: Boolean) {
@@ -96,8 +97,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    val discoverResultCallback = object: WifiP2pManager.ActionListener {
+        override fun onSuccess() {
+            Log.d(TAG, "Discovery init successfully")
+        }
+
+        override fun onFailure(reasonCode: Int) {
+            Log.e(TAG, "Discovery init failed reason: " + reasonCode)
+        }
+    }
+
     // Done
     fun discover() {
+        discoveryMode = true
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -108,15 +120,8 @@ class MainActivity : ComponentActivity() {
         ) {
             Log.e(TAG, "Missing permission before enabling discovery")
         }
-        manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                Log.d(TAG, "Discovery init successfully")
-            }
-
-            override fun onFailure(reasonCode: Int) {
-                Log.e(TAG, "Discovery init failed reason: " + reasonCode)
-            }
-        })
+        Log.d(TAG, "Discovering...")
+        manager.discoverPeers(channel, discoverResultCallback)
     }
 
     @SuppressLint("MissingPermission")
@@ -136,9 +141,13 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         try {
+            wiFiDirectReceiver = WiFiDirectBroadcastReceiver(manager, channel, this)
             registerReceiver(wiFiDirectReceiver, intentFilter)
         } catch (e: Exception) {
             e.message?.let { Log.e(TAG, it) }
+        }
+        if(discoveryMode) {
+            discover()
         }
     }
 
@@ -158,6 +167,7 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             e.message?.let { Log.e(TAG, it) }
         }
+        manager.stopPeerDiscovery(channel, discoverResultCallback)
     }
 
     fun startServer() {

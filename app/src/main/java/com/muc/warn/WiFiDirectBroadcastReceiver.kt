@@ -39,7 +39,8 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
             } else {
                 peers.forEach { peer ->
                     Log.d(TAG, "Status: " + peer.status + " Address: " + peer.deviceAddress)
-                    if(peer.status == WifiP2pDevice.AVAILABLE || peer.status == WifiP2pDevice.INVITED) {
+                    // Comment this block out on one device and leave it in on the other one for now
+                    if(peer.status == WifiP2pDevice.AVAILABLE) {
                         activity.connect(WifiP2pConfig().apply {
                             deviceAddress= peer.deviceAddress
                             wps.setup = WpsInfo.PBC
@@ -94,12 +95,10 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 Log.d(this.javaClass.name, "Received WIFI_P2P_PEERS_CHANGED_ACTION Event")
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
-                Log.d(this.javaClass.name, "Received WIFI_P2P_CONNECTION_CHANGED_ACTION Event")
+                val networkInfo: NetworkInfo? = intent
+                    .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO, NetworkInfo::class.java)
+                Log.d(this.javaClass.name, "Received WIFI_P2P_CONNECTION_CHANGED_ACTION Event | State: " + networkInfo?.state)
                 manager.let { mngr ->
-                    val networkInfo: NetworkInfo? = intent
-                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo?
-                    Log.d(TAG, "In mgr let")
-
                     if (networkInfo?.isConnected == true) {
                         Log.d(TAG, "NetInfo is connected")
                         // We are connected with the other device, request connection
@@ -110,7 +109,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 }
             }
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
-                val device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice?
+                val device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE, WifiP2pDevice::class.java)
                 Log.d(this.javaClass.name, "Received WIFI_P2P_THIS_DEVICE_CHANGED_ACTION Event | Device: " + device?.status)
             }
         }
