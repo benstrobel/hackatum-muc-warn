@@ -26,11 +26,7 @@ interface CloseNewConnectedPeer {
     fun close()
 }
 
-interface OnNewConnectedPeerListener {
-    fun onNewPeer(value: NewConnectedPeer)
-}
-
-class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListener: OnNewConnectedPeerListener?) {
+class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListener: (NewConnectedPeer) -> Unit) {
     companion object {
         val TAG = "WiFiDirectManager"
         val INITIAL_PERMISSION_CHECK_ID = 1
@@ -160,7 +156,7 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
                 val serverSocket = ServerSocket(8888)
                 val client = serverSocket.accept()
                 connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, client, serverSocket))
-                onNewConnectedPeerListener?.onNewPeer(NewConnectedPeer(macAddress, client.getInputStream(), client.getOutputStream()) {
+                onNewConnectedPeerListener(NewConnectedPeer(macAddress, client.getInputStream(), client.getOutputStream()) {
                     closePeerConnection(macAddress)
                 })
             }
@@ -176,7 +172,7 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
                 socket.bind(null)
                 socket.connect((InetSocketAddress(groupOwnerAddress, 8888)), 500)
                 connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, socket, null))
-                onNewConnectedPeerListener?.onNewPeer(NewConnectedPeer(macAddress, socket.getInputStream(), socket.getOutputStream()) {
+                onNewConnectedPeerListener(NewConnectedPeer(macAddress, socket.getInputStream(), socket.getOutputStream()) {
                     closePeerConnection(macAddress)
                 })
             }

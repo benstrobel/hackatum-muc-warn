@@ -9,15 +9,18 @@ import com.example.muc_warn.busineslogic.PeerToPeerManager
 import com.example.muc_warn.components.BottomBar.Screen
 import com.example.muc_warn.schema.Alert
 
-class NavigationViewModel() : ViewModel() {
+class NavigationViewModel(
+    p2pManager: PeerToPeerManager
+) : ViewModel() {
     val currentScreen = mutableStateOf<Screen>(Screen.Warnings)
 
     var isNetworkAvailable: MutableState<Boolean> = mutableStateOf(false)
 
     val alertList = mutableStateListOf<Alert>()
-    private val p2p = PeerToPeerManager()
+    val ptp: PeerToPeerManager
 
     init {
+        ptp  = p2pManager
         //callback is a bit ugly but hey it's effecient :P
         class CallbackImpl : FetchCallback {
             override fun onCallback(arr: List<Alert>) {
@@ -25,7 +28,7 @@ class NavigationViewModel() : ViewModel() {
             }
         }
         val cb = CallbackImpl()
-        p2p.fetchNewAlerts(cb)
+        ptp.fetchNewAlerts(cb)
     }
 
 

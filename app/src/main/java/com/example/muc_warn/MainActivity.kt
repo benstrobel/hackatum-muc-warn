@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.muc_warn.busineslogic.PeerToPeerManager
+import com.example.muc_warn.busineslogic.wifidirect.NewConnectedPeer
 import com.example.muc_warn.busineslogic.wifidirect.WiFiDirectManager
 import com.example.muc_warn.models.NavigationViewModel
 import com.example.muc_warn.ui.theme.MucWarnTheme
@@ -20,8 +22,11 @@ import com.example.muc_warn.views.SettingView
 class MainActivity : ComponentActivity() {
 
     private lateinit var wiFiDirectManager: WiFiDirectManager
+    private lateinit var p2pManager: PeerToPeerManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        p2pManager = PeerToPeerManager()
+        wiFiDirectManager = WiFiDirectManager(this) { newPeer: NewConnectedPeer -> p2pManager.newConnectionPeerConsumer(newPeer) }
         setContent {
             MucWarnTheme {
                 // A surface container using the 'background' color from the theme
@@ -30,7 +35,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    val navigationViewModel = NavigationViewModel()
+                    val navigationViewModel = NavigationViewModel(p2pManager)
 
                     NavHost(navController = navController, startDestination = "warnings" ) {
                         composable("warnings") {
@@ -46,8 +51,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        wiFiDirectManager = WiFiDirectManager(this, null)
     }
 
     @Deprecated(message = "Replace, see deprecation msg of super func")

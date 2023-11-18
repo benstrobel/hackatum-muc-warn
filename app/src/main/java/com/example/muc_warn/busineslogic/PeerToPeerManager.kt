@@ -1,6 +1,7 @@
 package com.example.muc_warn.busineslogic
 
 import android.os.Handler
+import com.example.muc_warn.busineslogic.wifidirect.NewConnectedPeer
 import com.example.muc_warn.schema.Alert
 import com.example.muc_warn.schema.Location
 import java.util.Date
@@ -14,6 +15,8 @@ class PeerToPeerManager() {
     private var callback: FetchCallback? = null
 
     init {
+
+
         val handler = Handler()
         val runnable = object : Runnable {
             override fun run() {
@@ -30,11 +33,17 @@ class PeerToPeerManager() {
                     )
                 )
                 callback?.onCallback(newAlerts)
+                newAlerts.clear()
                 println("I simulate P2P and I add new Alert every 3 seconds")
                 handler.postDelayed(this, 3000)
             }
         }
         handler.post(runnable)
+    }
+
+    fun newConnectionPeerConsumer(value: NewConnectedPeer){
+
+
     }
 
     fun fetchNewAlerts(callback: FetchCallback){
