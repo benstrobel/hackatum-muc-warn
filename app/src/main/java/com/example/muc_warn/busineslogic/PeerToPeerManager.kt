@@ -4,6 +4,8 @@ import android.os.Handler
 import com.example.muc_warn.busineslogic.wifidirect.NewConnectedPeer
 import com.example.muc_warn.schema.Alert
 import com.example.muc_warn.schema.Location
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.Date
 
 interface FetchCallback{
@@ -42,8 +44,27 @@ class PeerToPeerManager() {
     }
 
     fun newConnectionPeerConsumer(value: NewConnectedPeer){
+        println("In newConnectionPeerConsumer")
+        val inReader = BufferedReader(InputStreamReader(value.inputStream))
+        //val outWriter = BufferedWriter(OutputStreamWriter(value.outputStream))
 
+        val payload = "Servus"
 
+        println("Pre read " + value.macAddress)
+        if(value.macAddress.equals("server")) {
+            val payloadWithTerminator = payload+"\n"
+            val barray = payloadWithTerminator.toByteArray(Charsets.UTF_8)
+            value.outputStream.write(barray)
+            value.outputStream.flush()
+        } else {
+            val recevied = inReader.readLine()
+            println("Received2: " + recevied)
+            if(recevied.equals(payload)) {
+                println("Closing connection")
+                value.closePeer()
+            }
+        }
+        println("After")
     }
 
     fun fetchNewAlerts(callback: FetchCallback){

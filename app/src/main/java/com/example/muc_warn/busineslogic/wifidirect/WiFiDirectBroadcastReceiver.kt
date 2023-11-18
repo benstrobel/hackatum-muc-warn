@@ -22,10 +22,12 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         //if (discoveredAvailablePeersMap !== newPeerMap) {
             discoveredAvailablePeersMap.clear()
             discoveredAvailablePeersMap = newPeerMap
-            val invitedPeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.INVITED }.size
-            val availablePeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
-            val connectedPeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
-            Log.d(TAG, "Updated peerlist size: " + discoveredPeers.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
+            val invitedPeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.INVITED }
+            val availablePeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }
+            val connectedPeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.CONNECTED }
+            Log.d(TAG, "Updated peerlist size: " + discoveredPeers.size + " available: " + availablePeers.size + " invitedPeers: " + invitedPeers.size + " connectedPeers: " + connectedPeers.size)
+            Log.d(TAG, "Invited " + invitedPeers.joinToString(transform = {x -> x.deviceAddress+ "-" + x.deviceName}))
+            Log.d(TAG, "Available " + invitedPeers.joinToString(transform = {x -> x.deviceAddress+ "-" + x.deviceName}))
 
             if (discoveredAvailablePeersMap.isEmpty()) {
                 Log.d(TAG, "No devices found")

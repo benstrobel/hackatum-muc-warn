@@ -153,6 +153,15 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         val peer = connectedPeersMap[macAddress] ?: return
         peer.clientSocket?.close()
         peer.serverSocket?.close()
+        manager.removeGroup(channel, object: WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                Log.d(TAG, "Removed current p2p group")
+            }
+
+            override fun onFailure(reasonCode: Int) {
+                Log.e(TAG, "Failed to remove current p2p group: " + reasonCode)
+            }
+        })
         connectedPeersMap.remove(macAddress)
     }
 
@@ -162,11 +171,12 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
             Runnable {
                 val serverSocket = ServerSocket(8888)
                 val client = serverSocket.accept()
-                Log.d(TAG, "HELP: " + client.localAddress + " " + client.inetAddress + " " + client.localSocketAddress + " " + client.remoteSocketAddress + " " + client.reuseAddress)
-                /*connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, client, serverSocket))
+                val macAddress = "server"
+                //Log.d(TAG, "HELP: " + client.localAddress + " " + client.inetAddress + " " + client.localSocketAddress + " " + client.remoteSocketAddress + " " + client.reuseAddress)
+                connectedPeersMap[macAddress] = WiFiConnectedPeer(macAddress, client, serverSocket)
                 onNewConnectedPeerListener(NewConnectedPeer(macAddress, client.getInputStream(), client.getOutputStream()) {
                     closePeerConnection(macAddress)
-                })*/
+                })
             }
         )
         thread.start()
