@@ -35,6 +35,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 return@PeerListListener
             } else {
                 peers.forEach { peer ->
+                    Log.d(TAG, "Status: " + peer.status + " Address: " + peer.deviceAddress)
                     if(peer.status == WifiP2pDevice.AVAILABLE) {
                         activity.connect(WifiP2pConfig().apply {
                             deviceAddress= peer.deviceAddress
