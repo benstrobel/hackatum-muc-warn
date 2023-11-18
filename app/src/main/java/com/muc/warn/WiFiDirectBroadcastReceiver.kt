@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.NetworkInfo
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 
 class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private val channel: WifiP2pManager.Channel, private val activity: MainActivity): BroadcastReceiver() {
     companion object {
@@ -52,6 +55,28 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         }
     }
 
+    private val connectionListener = WifiP2pManager.ConnectionInfoListener { info ->
+        Log.d(TAG, "In ConnectionInfoListener")
+        // String from WifiP2pInfo struct
+        val groupOwnerAddress: String? = info.groupOwnerAddress.hostAddress
+
+        // After the group negotiation, we can determine the group owner
+        // (server).
+        if (info.groupFormed && info.isGroupOwner) {
+            Log.d(TAG, "I am owner | Owner Address: $groupOwnerAddress")
+            activity.groupOwnerAddress = groupOwnerAddress
+            // Do whatever tasks are specific to the group owner.
+            // One common case is creating a group owner thread and accepting
+            // incoming connections.
+        } else if (info.groupFormed) {
+            Log.d(TAG, "I am client | Owner Address: $groupOwnerAddress")
+            activity.groupOwnerAddress = groupOwnerAddress
+            // The other device acts as the peer (client). In this case,
+            // you'll want to create a peer thread that connects
+            // to the group owner.
+        }
+    }
+
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         when(intent.action) {
@@ -70,9 +95,23 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
                 Log.d(this.javaClass.name, "Received WIFI_P2P_CONNECTION_CHANGED_ACTION Event")
+                manager.let { mngr ->
+                    val networkInfo: NetworkInfo? = intent
+                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo?
+                    Log.d(TAG, "In mgr let")
+
+                    if (networkInfo?.isConnected == true) {
+                        Log.d(TAG, "NetInfo is connected")
+                        // We are connected with the other device, request connection
+                        // info to find group owner IP
+
+                        manager.requestConnectionInfo(channel, connectionListener)
+                    }
+                }
             }
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
-                Log.d(this.javaClass.name, "Received WIFI_P2P_THIS_DEVICE_CHANGED_ACTION Event")
+                val device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice?
+                Log.d(this.javaClass.name, "Received WIFI_P2P_THIS_DEVICE_CHANGED_ACTION Event | Device: " + device?.status)
             }
         }
     }

@@ -23,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import com.muc.warn.ui.theme.MucWarnTheme
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.Socket
 
 private var TAG = "MainActivity";
 
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var manager: WifiP2pManager
 
     private var isWifiP2pEnabled = false
+    public var groupOwnerAddress: String? = ""
 
     fun setIsWifiP2pEnabled(isWifiP2pEnabled: Boolean) {
         this.isWifiP2pEnabled = isWifiP2pEnabled
@@ -123,7 +127,7 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onFailure(reason: Int) {
-                Log.e(TAG, "Failed to connect to peer " + config.deviceAddress)
+                Log.e(TAG, "Failed to connect to peer " + config.deviceAddress + " Reason: " + reason)
             }
 
         })
@@ -155,6 +159,47 @@ class MainActivity : ComponentActivity() {
             e.message?.let { Log.e(TAG, it) }
         }
     }
+
+    fun startServer() {
+        println("start server")
+        val sread = Thread(
+            Runnable {
+                val serverSocket = ServerSocket(8888)
+                serverSocket.use {
+                    /**
+
+                    Wait for client connections. This call blocks until a
+                    connection is accepted from a client.*/
+                    val client = serverSocket.accept()
+                    println("connection established123")
+                    val inputstream = client.getInputStream()
+                    val barray = ByteArray(128)
+                    val code = inputstream.read(barray)
+                    Log.d(TAG, "Read code: $code")
+                    Log.d(TAG, "Received: " + barray.toString(Charsets.UTF_8))
+                    client.close()
+                    serverSocket.close()}}
+        )
+        sread.start()
+    }
+
+    fun connectSocket() {
+       println("connect socket")
+       val sread = Thread(
+           Runnable {
+               val socket = Socket()
+               socket.bind(null)
+               socket.connect((InetSocketAddress(groupOwnerAddress, 8888)), 500)
+               val outputstream = socket.getOutputStream()
+               outputstream.write("Moin Meister".toByteArray(Charsets.UTF_8).copyOf(128))
+               Log.d(TAG, "did the sing")
+               socket.close()
+           }
+       )
+        sread.start()
+    }
+
+
 }
 
 @Composable
@@ -169,6 +214,12 @@ fun Greeting(name: String, activity: MainActivity?, modifier: Modifier = Modifie
         }
         Button(onClick = { Log.d(TAG, "Pressed")}) {
             Text("Press Button")
+        }
+        Button(onClick = { activity?.startServer()}) {
+            Text("Host")
+        }
+        Button(onClick = { activity?.connectSocket()}) {
+            Text("Connect")
         }
     }
 }
