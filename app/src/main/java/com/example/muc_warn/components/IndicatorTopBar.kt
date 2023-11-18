@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun IndicatorTopBar(isNetworkAvailable: MutableState<Boolean>, title: String) {
     TopAppBar(
-        modifier = Modifier.fillMaxWidth().padding(10.dp),title = { Text(text = title) },
+        modifier = Modifier.fillMaxWidth().padding(10.dp),title = {
+            Text(text = title) },
         actions = { StatusIndicator(isNetworkAvailable = isNetworkAvailable) },
         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )

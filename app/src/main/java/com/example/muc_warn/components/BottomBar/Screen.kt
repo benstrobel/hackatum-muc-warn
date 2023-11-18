@@ -12,11 +12,18 @@ sealed class Screen(
 ) {
     object Warnings: Screen("warnings", "Warning", Icons.Outlined.Warning)
     object Info: Screen("info", "Infomation", Icons.Outlined.Info)
+
+    object Map: Screen("map", "Map", Icons.Outlined.LocationOn)
+    object Create: Screen("create", "Create Alert", Icons.Outlined.Send)
     object Settings: Screen("settings", "Settings", Icons.Outlined.Settings)
 
     object Items {
         val list = listOf(
-            Warnings, Info, Settings
+            Warnings, Info, Map, Settings
+        )
+
+        val listValidated = listOf(
+            Warnings, Info, Map, Create, Settings
         )
     }
 }

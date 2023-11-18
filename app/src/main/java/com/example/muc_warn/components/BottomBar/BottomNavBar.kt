@@ -1,5 +1,7 @@
 package com.example.muc_warn.components.BottomBar
 
+import android.content.Context
+import android.preference.PreferenceManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -15,18 +17,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.muc_warn.models.NavigationViewModel
+import com.example.muc_warn.views.validateCertificate
 
 @ExperimentalAnimationApi
 @Composable
 fun BottomNavBar(
     navController: NavController,
     currentScreenId: String,
-    onItemSelected: (Screen) -> Unit
+    onItemSelected: (Screen) -> Unit,
+    viewModel: NavigationViewModel
 ) {
-    val items = Screen.Items.list
+    val context: Context = LocalContext.current
 
     Row(
         modifier = Modifier
@@ -36,13 +42,19 @@ fun BottomNavBar(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        items.forEach { item ->
+        viewModel.mutableListItems.forEach { item ->
             CustomBottomNavigationItem(item = item, isSelected = item.id == currentScreenId) {
                 onItemSelected(item)
                 navController.navigate(item.id)
             }
         }
     }
+}
+
+fun hasPermission(context: Context): Boolean {
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    val certificate = sharedPreferences.getString("user_certificate", null)
+    return validateCertificate(certificate ?: "")
 }
 
 @ExperimentalAnimationApi

@@ -14,6 +14,9 @@ class NavigationViewModel {
 
     var isNetworkAvailable: MutableState<Boolean> = mutableStateOf(false);
 
+    var mutableListItems: MutableList<Screen> = Screen.Items.list.toMutableList()
+
+
     val alertList = mutableListOf(
         Alert(
             senderName = "Lena Müller",
