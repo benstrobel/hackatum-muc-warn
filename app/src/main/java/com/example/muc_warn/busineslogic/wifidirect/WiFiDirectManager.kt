@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.wifi.p2p.WifiP2pConfig
+import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Handler
 import android.os.Looper
@@ -72,6 +73,10 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         }
     }
 
+    fun getDiscoveredAvailablePeers(): MutableMap<String, WifiP2pDevice> {
+        return wiFiDirectReceiver.discoveredAvailablePeersMap
+    }
+
     val discoverResultCallback = object: WifiP2pManager.ActionListener {
         override fun onSuccess() {
             Log.d(TAG, "Discovery init successfully")
@@ -82,12 +87,12 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         }
     }
 
-    fun onNewPotentialPeer(macAddress: String, groupOwnerAddress: String?,isHost: Boolean) {
+    fun onNewP2PConnection(macAddress: String?, groupOwnerAddress: String?, isHost: Boolean) {
         if(isHost) {
-            connectAsServer(macAddress)
+            connectAsServer()
         } else {
-            if(groupOwnerAddress == null) {
-                Log.e(TAG, "groupOwnerAddress must be set for clients")
+            if(groupOwnerAddress == null || macAddress == null) {
+                Log.e(TAG, "groupOwnerAddress && groupOwnerAddress must be set for clients")
                 return
             }
             connectAsClient(macAddress, groupOwnerAddress)
@@ -114,7 +119,7 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
     fun connect(config: WifiP2pConfig) {
         manager.connect(channel, config, object: WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                Log.d(TAG, "Connection to peer" + config.deviceAddress + " succeeded")
+                Log.d(TAG, "Connection to peer " + config.deviceAddress + " succeeded")
             }
 
             override fun onFailure(reason: Int) {
@@ -151,17 +156,17 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         connectedPeersMap.remove(macAddress)
     }
 
-    private fun connectAsServer(macAddress: String) {
+    private fun connectAsServer() {
         println("start server")
         val thread = Thread(
             Runnable {
                 val serverSocket = ServerSocket(8888)
                 val client = serverSocket.accept()
                 Log.d(TAG, "HELP: " + client.localAddress + " " + client.inetAddress + " " + client.localSocketAddress + " " + client.remoteSocketAddress + " " + client.reuseAddress)
-                connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, client, serverSocket))
+                /*connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, client, serverSocket))
                 onNewConnectedPeerListener(NewConnectedPeer(macAddress, client.getInputStream(), client.getOutputStream()) {
                     closePeerConnection(macAddress)
-                })
+                })*/
             }
         )
         thread.start()

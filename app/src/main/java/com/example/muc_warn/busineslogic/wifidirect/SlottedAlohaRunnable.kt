@@ -6,11 +6,15 @@ import android.os.Handler
 import android.util.Log
 
 class SlottedAlohaRunnable(val wiFiDirectManager: WiFiDirectManager, val handler: Handler): Runnable {
+    companion object {
+        val TAG = "SlottedAlohaRunnable"
+    }
+
     override fun run() {
-        wiFiDirectManager.connectedPeersMap.values.forEach { peer ->
-            Log.d(WiFiDirectBroadcastReceiver.TAG, "Slotted Aloha found Address: " + peer.macAddress)
+        wiFiDirectManager.getDiscoveredAvailablePeers().values.forEach { peer ->
+            Log.d(TAG, "Slotted Aloha found Address: " + peer.deviceAddress)
             wiFiDirectManager.connect(WifiP2pConfig().apply {
-                deviceAddress= peer.macAddress
+                deviceAddress= peer.deviceAddress
                 wps.setup = WpsInfo.PBC
             })
         }

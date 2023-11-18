@@ -14,26 +14,26 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         val TAG = "WiFiDirectBroadcastReceiver"
     }
     //val peers = mutableListOf<WifiP2pDevice>()
-    var peerMap: MutableMap<String, WifiP2pDevice> = mutableMapOf()
+    var discoveredAvailablePeersMap: MutableMap<String, WifiP2pDevice> = mutableMapOf()
     
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
-        val refreshedPeers = peerList.deviceList
-        val newPeerMap = refreshedListToMap(refreshedPeers)
-        if (peerMap !== newPeerMap) {
-            peerMap.clear()
-            peerMap = newPeerMap
-            val invitedPeers = peerMap.values.filter { x -> x.status == WifiP2pDevice.INVITED }.size
-            val availablePeers = peerMap.values.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
-            val connectedPeers = peerMap.values.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
-            Log.d(TAG, "Updated peerlist size: " + peerMap.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
+        val discoveredPeers = peerList.deviceList
+        val newPeerMap = refreshedListToMap(discoveredPeers)
+        //if (discoveredAvailablePeersMap !== newPeerMap) {
+            discoveredAvailablePeersMap.clear()
+            discoveredAvailablePeersMap = newPeerMap
+            val invitedPeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.INVITED }.size
+            val availablePeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
+            val connectedPeers = discoveredPeers.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
+            Log.d(TAG, "Updated peerlist size: " + discoveredPeers.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
 
-            if (peerMap.isEmpty()) {
+            if (discoveredAvailablePeersMap.isEmpty()) {
                 Log.d(TAG, "No devices found")
                 return@PeerListListener
             }
-        }
+        //}
 
-        if (peerMap.isEmpty()) {
+        if (discoveredAvailablePeersMap.isEmpty()) {
             Log.d(TAG, "No devices found")
             return@PeerListListener
         }
@@ -46,21 +46,18 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         if (info.groupFormed && info.isGroupOwner) {
             Log.d(TAG, "I am owner | Owner Address: $groupOwnerAddress")
             wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
-            if(groupOwnerAddress == null ) return@ConnectionInfoListener
-            val peerDevice = peerMap[groupOwnerAddress]
-            if(peerDevice != null && wiFiDirectManager.onNewConnectedPeerListener != null && peerDevice.status == WifiP2pDevice.AVAILABLE) {
-                wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, null, true)
-            }
+            //if(groupOwnerAddress == null ) return@ConnectionInfoListener
+            wiFiDirectManager.onNewP2PConnection(null, null, true)
         } else if (info.groupFormed) {
             Log.d(TAG, "I am client | Owner Address: $groupOwnerAddress")
             if(groupOwnerAddress == null ) return@ConnectionInfoListener
-            wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, groupOwnerAddress, false)
+            wiFiDirectManager.onNewP2PConnection(groupOwnerAddress, groupOwnerAddress, false)
         }
     }
 
     private fun refreshedListToMap(list: Collection<WifiP2pDevice>): MutableMap<String, WifiP2pDevice> {
         val map: MutableMap<String, WifiP2pDevice> = mutableMapOf()
-        list.forEach { peer ->
+        list.filter{x -> x.status == WifiP2pDevice.AVAILABLE}.forEach { peer ->
             map.put(peer.deviceAddress, peer)
         }
         return map
@@ -86,14 +83,9 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 val networkInfo: NetworkInfo? = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo?
                 Log.d(this.javaClass.name, "Received WIFI_P2P_CONNECTION_CHANGED_ACTION Event | State: " + networkInfo?.state)
-                val device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice?
-                Log.d(TAG, "ALARM: " + device?.deviceAddress)
                 manager.let { mngr ->
                     if (networkInfo?.isConnected == true) {
                         Log.d(TAG, "NetInfo is connected")
-                        // We are connected with the other device, request connection
-                        // info to find group owner IP
-
                         manager.requestConnectionInfo(channel, connectionListener)
                     }
                 }
