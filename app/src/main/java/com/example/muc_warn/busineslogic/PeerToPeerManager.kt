@@ -30,7 +30,7 @@ class PeerToPeerManager() {
                     )
                 )
                 callback?.onCallback(newAlerts)
-                println("I simulate P2P and I add new Alert every 3 seconds")
+                //println("I simulate P2P and I add new Alert every 3 seconds")
                 handler.postDelayed(this, 3000)
             }
         }

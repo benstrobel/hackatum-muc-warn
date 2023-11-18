@@ -49,12 +49,12 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
             if(groupOwnerAddress == null ) return@ConnectionInfoListener
             val peerDevice = peerMap[groupOwnerAddress]
             if(peerDevice != null && wiFiDirectManager.onNewConnectedPeerListener != null && peerDevice.status == WifiP2pDevice.AVAILABLE) {
-                wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, true)
+                wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, null, true)
             }
         } else if (info.groupFormed) {
             Log.d(TAG, "I am client | Owner Address: $groupOwnerAddress")
-            wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
-
+            if(groupOwnerAddress == null ) return@ConnectionInfoListener
+            wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, groupOwnerAddress, false)
         }
     }
 
@@ -86,6 +86,8 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 val networkInfo: NetworkInfo? = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo?
                 Log.d(this.javaClass.name, "Received WIFI_P2P_CONNECTION_CHANGED_ACTION Event | State: " + networkInfo?.state)
+                val device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as WifiP2pDevice?
+                Log.d(TAG, "ALARM: " + device?.deviceAddress)
                 manager.let { mngr ->
                     if (networkInfo?.isConnected == true) {
                         Log.d(TAG, "NetInfo is connected")

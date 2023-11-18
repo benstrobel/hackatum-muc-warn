@@ -45,7 +45,6 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
     private var slottedAlohaRunnable: SlottedAlohaRunnable
 
     private var manager: WifiP2pManager = activity.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
-    private var discoveryMode = false
     var isWifiP2pEnabled = false
     var groupOwnerAddress: String? = ""
     var connectedPeersMap: MutableMap<String, WiFiConnectedPeer> = mutableMapOf()
@@ -87,11 +86,15 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         }
     }
 
-    public fun onNewPotentialPeer(macAddress: String, isHost: Boolean) {
+    fun onNewPotentialPeer(macAddress: String, groupOwnerAddress: String?,isHost: Boolean) {
         if(isHost) {
             connectAsServer(macAddress)
         } else {
-            connectAsClient(macAddress)
+            if(groupOwnerAddress == null) {
+                Log.e(TAG, "groupOwnerAddress must be set for clients")
+                return
+            }
+            connectAsClient(macAddress, groupOwnerAddress)
         }
     }
 
@@ -126,7 +129,6 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
     }
 
     fun discover() {
-        discoveryMode = true
         if (ActivityCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -146,19 +148,20 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         handler.postDelayed(slottedAlohaRunnable, 3000)
     }
 
-    fun closePeerConnection(macAddress: String) {
+    private fun closePeerConnection(macAddress: String) {
         val peer = connectedPeersMap[macAddress] ?: return
         peer.clientSocket?.close()
         peer.serverSocket?.close()
         connectedPeersMap.remove(macAddress)
     }
 
-    fun connectAsServer(macAddress: String) {
+    private fun connectAsServer(macAddress: String) {
         println("start server")
         val thread = Thread(
             Runnable {
                 val serverSocket = ServerSocket(8888)
                 val client = serverSocket.accept()
+                Log.d(TAG, "HELP: " + client.localAddress + " " + client.inetAddress + " " + client.localSocketAddress + " " + client.remoteSocketAddress + " " + client.reuseAddress)
                 connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, client, serverSocket))
                 onNewConnectedPeerListener?.onNewPeer(NewConnectedPeer(macAddress, client.getInputStream(), client.getOutputStream()) {
                     closePeerConnection(macAddress)
@@ -168,7 +171,7 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         thread.start()
     }
 
-    fun connectAsClient(macAddress: String) {
+    private fun connectAsClient(macAddress: String, groupOwnerAddress: String) {
         println("connect socket")
         val thread = Thread(
             Runnable {
@@ -191,9 +194,7 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
         } catch (e: Exception) {
             e.message?.let { Log.e(TAG, it) }
         }
-        if(discoveryMode) {
-            discover()
-        }
+        discover()
         startSlottedAlohaThread()
     }
 
