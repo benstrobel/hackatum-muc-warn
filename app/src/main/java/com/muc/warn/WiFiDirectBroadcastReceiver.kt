@@ -48,7 +48,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
             wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
             if(groupOwnerAddress == null ) return@ConnectionInfoListener
             val peerDevice = peerMap[groupOwnerAddress]
-            if(peerDevice != null && wiFiDirectManager.onNewConnectedPeerListener != null) {
+            if(peerDevice != null && wiFiDirectManager.onNewConnectedPeerListener != null && peerDevice.status == WifiP2pDevice.AVAILABLE) {
                 wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, true)
             }
         } else if (info.groupFormed) {

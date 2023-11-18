@@ -88,9 +88,9 @@ class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListen
 
     public fun onNewPotentialPeer(macAddress: String, isHost: Boolean) {
         if(isHost) {
-
+            connectAsServer(macAddress)
         } else {
-
+            connectAsClient(macAddress)
         }
     }
 

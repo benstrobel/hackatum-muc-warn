@@ -73,10 +73,10 @@ fun Greeting(name: String, activity: MainActivity?, wiFiDirectManager: WiFiDirec
         Button(onClick = { Log.d(TAG, "Pressed")}) {
             Text("Press Button")
         }
-        Button(onClick = { wiFiDirectManager?.connectAsServer()}) {
+        Button(onClick = { wiFiDirectManager?.connectAsServer("")}) {
             Text("Host")
         }
-        Button(onClick = { wiFiDirectManager?.connectAsClient()}) {
+        Button(onClick = { wiFiDirectManager?.connectAsClient("")}) {
             Text("Connect")
         }
     }
