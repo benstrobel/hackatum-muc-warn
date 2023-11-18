@@ -10,9 +10,9 @@ sealed class Screen(
     val title: String,
     val icon: ImageVector
 ) {
-    object Warnings: Screen("warnings", "Warnung", Icons.Outlined.Warning)
-    object Info: Screen("info", "Info", Icons.Outlined.Info)
-    object Settings: Screen("settings", "Einstellung", Icons.Outlined.Settings)
+    object Warnings: Screen("warnings", "Warning", Icons.Outlined.Warning)
+    object Info: Screen("info", "Infomation", Icons.Outlined.Info)
+    object Settings: Screen("settings", "Settings", Icons.Outlined.Settings)
 
     object Items {
         val list = listOf(

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -48,7 +49,7 @@ fun BottomNavBar(
 @Composable
 fun CustomBottomNavigationItem(item: Screen, isSelected: Boolean, onClick: () -> Unit) {
     val background = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
-    val contentColor = if (!isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+    val contentColor = Color.Black
 
     Box(
         modifier = Modifier
@@ -65,7 +66,7 @@ fun CustomBottomNavigationItem(item: Screen, isSelected: Boolean, onClick: () ->
             Icon(imageVector = item.icon, contentDescription = null, tint = contentColor)
 
             AnimatedVisibility(visible = isSelected) {
-                Text(text = item.title, color = contentColor)
+                Text(text = item.title, color = contentColor, fontWeight = FontWeight.SemiBold)
             }
         }
     }
