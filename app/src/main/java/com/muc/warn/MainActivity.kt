@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pManager
+import android.net.wifi.p2p.WifiP2pManager.ActionListener
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -110,6 +112,20 @@ class MainActivity : ComponentActivity() {
             override fun onFailure(reasonCode: Int) {
                 Log.e(TAG, "Discovery init failed reason: " + reasonCode)
             }
+        })
+    }
+
+    @SuppressLint("MissingPermission")
+    fun connect(config: WifiP2pConfig) {
+        manager.connect(channel, config, object: WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                Log.d(TAG, "Connection to peer" + config.deviceAddress + " succeeded")
+            }
+
+            override fun onFailure(reason: Int) {
+                Log.e(TAG, "Failed to connect to peer " + config.deviceAddress)
+            }
+
         })
     }
 

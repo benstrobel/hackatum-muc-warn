@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.wifi.WpsInfo
+import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
@@ -31,6 +33,11 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
             if (peers.isEmpty()) {
                 Log.d(TAG, "No devices found")
                 return@PeerListListener
+            } else {
+                peers.forEach { peer -> activity.connect(WifiP2pConfig().apply {
+                    deviceAddress= peer.deviceAddress
+                    wps.setup = WpsInfo.PBC
+                }) }
             }
         }
 
