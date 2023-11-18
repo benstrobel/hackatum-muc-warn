@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -28,7 +29,10 @@ fun WarningCard(title: String, subtitle: String) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Red.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)) // Red background with opacity
+                .background(
+                    Color.Red.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(8.dp)
+                ) // Red background with opacity
                 .border(1.dp, Color.Red, shape = RoundedCornerShape(8.dp)) // Red border
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically

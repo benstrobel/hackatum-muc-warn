@@ -31,7 +31,7 @@ fun IndicatorTopBar(isNetworkAvailable: MutableState<Boolean>, title: String) {
 
 @Composable
 fun StatusIndicator(isNetworkAvailable: MutableState<Boolean>) {
-    val color = if (isNetworkAvailable.value) Color.Green else Color.Red
+    val color = if (isNetworkAvailable.value) Color(0xFF9BE6CB) else Color(0xFFEEAD92)
 
     Canvas(modifier = Modifier.size(25.dp), onDraw = {
         drawCircle(color = color)
