@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.muc_warn.busineslogic.wifidirect.WiFiDirectManager
 import com.example.muc_warn.models.NavigationViewModel
 import com.example.muc_warn.ui.theme.MucWarnTheme
 import com.example.muc_warn.views.InfoView
@@ -17,6 +18,8 @@ import com.example.muc_warn.views.MainView
 import com.example.muc_warn.views.SettingView
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var wiFiDirectManager: WiFiDirectManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -43,5 +46,27 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        wiFiDirectManager = WiFiDirectManager(this, null)
+    }
+
+    @Deprecated(message = "Replace, see deprecation msg of super func")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        wiFiDirectManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        wiFiDirectManager.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        wiFiDirectManager.onPause()
     }
 }
