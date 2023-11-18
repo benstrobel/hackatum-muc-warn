@@ -18,12 +18,15 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
         val TAG = "WiFiDirectBroadcastReceiver"
     }
 
-    private val peers = mutableListOf<WifiP2pDevice>()
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
         val refreshedPeers = peerList.deviceList
-        if (refreshedPeers != peers) {
-            peers.clear()
-            peers.addAll(refreshedPeers)
+        if (refreshedPeers != activity.peers) {
+            activity.peers.clear()
+            activity.peers.addAll(refreshedPeers)
+            val invitedPeers = activity.peers.filter { x -> x.status == WifiP2pDevice.INVITED }.size
+            val availablePeers = activity.peers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
+            val connectedPeers = activity.peers.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
+            Log.d(TAG, "Updated peerlist size: " + activity.peers.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
 
             // If an AdapterView is backed by this data, notify it
             // of the change. For instance, if you have a ListView of
@@ -33,24 +36,13 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
 
             // Perform any other updates needed based on the new list of
             // peers connected to the Wi-Fi P2P network.
-            if (peers.isEmpty()) {
+            if (activity.peers.isEmpty()) {
                 Log.d(TAG, "No devices found")
                 return@PeerListListener
-            } else {
-                peers.forEach { peer ->
-                    Log.d(TAG, "Status: " + peer.status + " Address: " + peer.deviceAddress)
-                    // Comment this block out on one device and leave it in on the other one for now
-                    if(peer.status == WifiP2pDevice.AVAILABLE) {
-                        activity.connect(WifiP2pConfig().apply {
-                            deviceAddress= peer.deviceAddress
-                            wps.setup = WpsInfo.PBC
-                        })
-                    }
-                }
             }
         }
 
-        if (peers.isEmpty()) {
+        if (activity.peers.isEmpty()) {
             Log.d(TAG, "No devices found")
             return@PeerListListener
         }

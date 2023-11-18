@@ -2,13 +2,18 @@ package com.muc.warn
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.wifi.p2p.WifiP2pConfig
+import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.ActionListener
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,6 +32,7 @@ import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
+
 private var TAG = "MainActivity";
 
 class MainActivity : ComponentActivity() {
@@ -40,10 +46,13 @@ class MainActivity : ComponentActivity() {
     private lateinit var intentFilter: IntentFilter
     private lateinit var channel: WifiP2pManager.Channel
     private lateinit var manager: WifiP2pManager
+    private lateinit var handler: Handler
+    private lateinit var slottedAlohaRunnable: SlottedAlohaRunnable
 
     private var isWifiP2pEnabled = false
     private var discoveryMode = false
-    public var groupOwnerAddress: String? = ""
+    var groupOwnerAddress: String? = ""
+    val peers = mutableListOf<WifiP2pDevice>()
 
     fun setIsWifiP2pEnabled(isWifiP2pEnabled: Boolean) {
         this.isWifiP2pEnabled = isWifiP2pEnabled
@@ -61,6 +70,8 @@ class MainActivity : ComponentActivity() {
         }
         manager = getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
         channel = manager.initialize(this, mainLooper, null)
+        handler = Handler(Looper.getMainLooper())
+        slottedAlohaRunnable = SlottedAlohaRunnable(this, handler)
 
         wiFiDirectReceiver = WiFiDirectBroadcastReceiver(manager, channel, this)
         intentFilter = IntentFilter()
@@ -124,6 +135,11 @@ class MainActivity : ComponentActivity() {
         manager.discoverPeers(channel, discoverResultCallback)
     }
 
+    private fun startSlottedAlohaThread() {
+        println("Starting test")
+        handler.postDelayed(slottedAlohaRunnable, 3000)
+    }
+
     @SuppressLint("MissingPermission")
     fun connect(config: WifiP2pConfig) {
         manager.connect(channel, config, object: WifiP2pManager.ActionListener {
@@ -149,6 +165,7 @@ class MainActivity : ComponentActivity() {
         if(discoveryMode) {
             discover()
         }
+        startSlottedAlohaThread()
     }
 
     /*override fun onDestroy() {
@@ -168,6 +185,7 @@ class MainActivity : ComponentActivity() {
             e.message?.let { Log.e(TAG, it) }
         }
         manager.stopPeerDiscovery(channel, discoverResultCallback)
+        handler.removeCallbacks(slottedAlohaRunnable)
     }
 
     fun startServer() {
