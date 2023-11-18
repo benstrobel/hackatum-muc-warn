@@ -34,10 +34,14 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 Log.d(TAG, "No devices found")
                 return@PeerListListener
             } else {
-                peers.forEach { peer -> activity.connect(WifiP2pConfig().apply {
-                    deviceAddress= peer.deviceAddress
-                    wps.setup = WpsInfo.PBC
-                }) }
+                peers.forEach { peer ->
+                    if(peer.status == WifiP2pDevice.AVAILABLE) {
+                        activity.connect(WifiP2pConfig().apply {
+                            deviceAddress= peer.deviceAddress
+                            wps.setup = WpsInfo.PBC
+                        })
+                    }
+                }
             }
         }
 
