@@ -1,4 +1,4 @@
-package com.example.muc_warn
+package com.example.testjetpack
 
 import org.junit.Test
 

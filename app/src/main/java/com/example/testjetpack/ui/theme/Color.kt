@@ -1,4 +1,4 @@
-package com.example.muc_warn.ui.theme
+package com.example.testjetpack.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

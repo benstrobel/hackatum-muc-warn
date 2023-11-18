@@ -13,5 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Muc-Warn"
+rootProject.name = "testJetpack"
 include(":app")
+ 
