@@ -5,44 +5,35 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.NetworkInfo
-import android.net.wifi.WpsInfo
-import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 
 class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private val channel: WifiP2pManager.Channel, private val wiFiDirectManager: WiFiDirectManager): BroadcastReceiver() {
     companion object {
         val TAG = "WiFiDirectBroadcastReceiver"
     }
-
+    //val peers = mutableListOf<WifiP2pDevice>()
+    var peerMap: MutableMap<String, WifiP2pDevice> = mutableMapOf()
+    
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
         val refreshedPeers = peerList.deviceList
-        if (refreshedPeers != wiFiDirectManager.peers) {
-            wiFiDirectManager.peers.clear()
-            wiFiDirectManager.peers.addAll(refreshedPeers)
-            val invitedPeers = wiFiDirectManager.peers.filter { x -> x.status == WifiP2pDevice.INVITED }.size
-            val availablePeers = wiFiDirectManager.peers.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
-            val connectedPeers = wiFiDirectManager.peers.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
-            Log.d(TAG, "Updated peerlist size: " + wiFiDirectManager.peers.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
+        val newPeerMap = refreshedListToMap(refreshedPeers)
+        if (peerMap !== newPeerMap) {
+            peerMap.clear()
+            peerMap = newPeerMap
+            val invitedPeers = peerMap.values.filter { x -> x.status == WifiP2pDevice.INVITED }.size
+            val availablePeers = peerMap.values.filter { x -> x.status == WifiP2pDevice.AVAILABLE }.size
+            val connectedPeers = peerMap.values.filter { x -> x.status == WifiP2pDevice.CONNECTED }.size
+            Log.d(TAG, "Updated peerlist size: " + peerMap.size + " available: " + availablePeers + " invitedPeers: " + invitedPeers + " connectedPeers: " + connectedPeers)
 
-            // If an AdapterView is backed by this data, notify it
-            // of the change. For instance, if you have a ListView of
-            // available peers, trigger an update.
-            // TODO Do we need this? (listAdapter as WiFiPeerListAdapter).notifyDataSetChanged()
-            // TODO Since we dont want to display the list it shouldnt be a problem
-
-            // Perform any other updates needed based on the new list of
-            // peers connected to the Wi-Fi P2P network.
-            if (wiFiDirectManager.peers.isEmpty()) {
+            if (peerMap.isEmpty()) {
                 Log.d(TAG, "No devices found")
                 return@PeerListListener
             }
         }
 
-        if (wiFiDirectManager.peers.isEmpty()) {
+        if (peerMap.isEmpty()) {
             Log.d(TAG, "No devices found")
             return@PeerListListener
         }
@@ -50,24 +41,29 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
 
     private val connectionListener = WifiP2pManager.ConnectionInfoListener { info ->
         Log.d(TAG, "In ConnectionInfoListener")
-        // String from WifiP2pInfo struct
         val groupOwnerAddress: String? = info.groupOwnerAddress.hostAddress
 
-        // After the group negotiation, we can determine the group owner
-        // (server).
         if (info.groupFormed && info.isGroupOwner) {
             Log.d(TAG, "I am owner | Owner Address: $groupOwnerAddress")
             wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
-            // Do whatever tasks are specific to the group owner.
-            // One common case is creating a group owner thread and accepting
-            // incoming connections.
+            if(groupOwnerAddress == null ) return@ConnectionInfoListener
+            val peerDevice = peerMap[groupOwnerAddress]
+            if(peerDevice != null && wiFiDirectManager.onNewConnectedPeerListener != null) {
+                wiFiDirectManager.onNewPotentialPeer(groupOwnerAddress, true)
+            }
         } else if (info.groupFormed) {
             Log.d(TAG, "I am client | Owner Address: $groupOwnerAddress")
             wiFiDirectManager.groupOwnerAddress = groupOwnerAddress
-            // The other device acts as the peer (client). In this case,
-            // you'll want to create a peer thread that connects
-            // to the group owner.
+
         }
+    }
+
+    private fun refreshedListToMap(list: Collection<WifiP2pDevice>): MutableMap<String, WifiP2pDevice> {
+        val map: MutableMap<String, WifiP2pDevice> = mutableMapOf()
+        list.forEach { peer ->
+            map.put(peer.deviceAddress, peer)
+        }
+        return map
     }
 
     @SuppressLint("MissingPermission")

@@ -1,19 +1,6 @@
 package com.muc.warn
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
-import android.content.ComponentName
-import android.content.Context
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.net.wifi.p2p.WifiP2pConfig
-import android.net.wifi.p2p.WifiP2pDevice
-import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,7 +35,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        wiFiDirectManager = WiFiDirectManager(this)
+        wiFiDirectManager = WiFiDirectManager(this, null)
     }
 
     @Deprecated(message = "Replace, see deprecation msg of super func")
@@ -86,10 +73,10 @@ fun Greeting(name: String, activity: MainActivity?, wiFiDirectManager: WiFiDirec
         Button(onClick = { Log.d(TAG, "Pressed")}) {
             Text("Press Button")
         }
-        Button(onClick = { wiFiDirectManager?.startServer()}) {
+        Button(onClick = { wiFiDirectManager?.connectAsServer()}) {
             Text("Host")
         }
-        Button(onClick = { wiFiDirectManager?.connectSocket()}) {
+        Button(onClick = { wiFiDirectManager?.connectAsClient()}) {
             Text("Connect")
         }
     }

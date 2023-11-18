@@ -6,17 +6,30 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.wifi.p2p.WifiP2pConfig
-import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
-class WiFiDirectManager(val activity: MainActivity) {
+class NewConnectedPeer(val macAddress: String, val inputStream: InputStream, val outputStream: OutputStream, val closePeer: () -> Unit)
+
+class WiFiConnectedPeer(val macAddress: String, val clientSocket: Socket?, val serverSocket: ServerSocket?)
+
+interface CloseNewConnectedPeer {
+    fun close()
+}
+
+interface OnNewConnectedPeerListener {
+    fun onNewPeer(value: NewConnectedPeer)
+}
+
+class WiFiDirectManager(val activity: MainActivity, val onNewConnectedPeerListener: OnNewConnectedPeerListener?) {
     companion object {
         val TAG = "WiFiDirectManager"
         val INITIAL_PERMISSION_CHECK_ID = 1
@@ -34,7 +47,7 @@ class WiFiDirectManager(val activity: MainActivity) {
     private var discoveryMode = false
     var isWifiP2pEnabled = false
     var groupOwnerAddress: String? = ""
-    val peers = mutableListOf<WifiP2pDevice>()
+    var connectedPeersMap: MutableMap<String, WiFiConnectedPeer> = mutableMapOf()
 
     init {
         channel = manager.initialize(activity, activity.mainLooper, null)
@@ -73,8 +86,14 @@ class WiFiDirectManager(val activity: MainActivity) {
         }
     }
 
-    // TODO Replace, see deprecation msg of super func
-    @Deprecated(message = "Replace, see deprecation msg of super func")
+    public fun onNewPotentialPeer(macAddress: String, isHost: Boolean) {
+        if(isHost) {
+
+        } else {
+
+        }
+    }
+
     fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -105,6 +124,65 @@ class WiFiDirectManager(val activity: MainActivity) {
         })
     }
 
+    fun discover() {
+        discoveryMode = true
+        if (ActivityCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.NEARBY_WIFI_DEVICES
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.e(TAG, "Missing permission before enabling discovery")
+        }
+        Log.d(TAG, "Entering discovery mode...")
+        manager.discoverPeers(channel, discoverResultCallback)
+    }
+
+    private fun startSlottedAlohaThread() {
+        println("Starting test")
+        handler.postDelayed(slottedAlohaRunnable, 3000)
+    }
+
+    fun closePeerConnection(macAddress: String) {
+        val peer = connectedPeersMap[macAddress] ?: return
+        peer.clientSocket?.close()
+        peer.serverSocket?.close()
+        connectedPeersMap.remove(macAddress)
+    }
+
+    fun connectAsServer(macAddress: String) {
+        println("start server")
+        val thread = Thread(
+            Runnable {
+                val serverSocket = ServerSocket(8888)
+                val client = serverSocket.accept()
+                connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, client, serverSocket))
+                onNewConnectedPeerListener?.onNewPeer(NewConnectedPeer(macAddress, client.getInputStream(), client.getOutputStream()) {
+                    closePeerConnection(macAddress)
+                })
+            }
+        )
+        thread.start()
+    }
+
+    fun connectAsClient(macAddress: String) {
+        println("connect socket")
+        val thread = Thread(
+            Runnable {
+                val socket = Socket()
+                socket.bind(null)
+                socket.connect((InetSocketAddress(groupOwnerAddress, 8888)), 500)
+                connectedPeersMap.put(macAddress, WiFiConnectedPeer(macAddress, socket, null))
+                onNewConnectedPeerListener?.onNewPeer(NewConnectedPeer(macAddress, socket.getInputStream(), socket.getOutputStream()) {
+                    closePeerConnection(macAddress)
+                })
+            }
+        )
+        thread.start()
+    }
+
     fun onResume() {
         try {
             wiFiDirectReceiver = WiFiDirectBroadcastReceiver(manager, channel, this)
@@ -126,65 +204,5 @@ class WiFiDirectManager(val activity: MainActivity) {
         }
         manager.stopPeerDiscovery(channel, discoverResultCallback)
         handler.removeCallbacks(slottedAlohaRunnable)
-    }
-
-    fun discover() {
-        discoveryMode = true
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.NEARBY_WIFI_DEVICES
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.e(TAG, "Missing permission before enabling discovery")
-        }
-        Log.d(TAG, "Discovering...")
-        manager.discoverPeers(channel, discoverResultCallback)
-    }
-
-    private fun startSlottedAlohaThread() {
-        println("Starting test")
-        handler.postDelayed(slottedAlohaRunnable, 3000)
-    }
-
-    fun startServer() {
-        println("start server")
-        val sread = Thread(
-            Runnable {
-                val serverSocket = ServerSocket(8888)
-                serverSocket.use {
-                    /**
-
-                    Wait for client connections. This call blocks until a
-                    connection is accepted from a client.*/
-                    val client = serverSocket.accept()
-                    println("connection established123")
-                    val inputstream = client.getInputStream()
-                    val barray = ByteArray(128)
-                    val code = inputstream.read(barray)
-                    Log.d(TAG, "Read code: $code")
-                    Log.d(TAG, "Received: " + barray.toString(Charsets.UTF_8))
-                    client.close()
-                    serverSocket.close()}}
-        )
-        sread.start()
-    }
-
-    fun connectSocket() {
-        println("connect socket")
-        val sread = Thread(
-            Runnable {
-                val socket = Socket()
-                socket.bind(null)
-                socket.connect((InetSocketAddress(groupOwnerAddress, 8888)), 500)
-                val outputstream = socket.getOutputStream()
-                outputstream.write("Moin Meister".toByteArray(Charsets.UTF_8).copyOf(128))
-                Log.d(TAG, "did the sing")
-                socket.close()
-            }
-        )
-        sread.start()
     }
 }
