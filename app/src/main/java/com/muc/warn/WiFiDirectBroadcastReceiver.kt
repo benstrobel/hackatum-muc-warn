@@ -36,7 +36,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
             } else {
                 peers.forEach { peer ->
                     Log.d(TAG, "Status: " + peer.status + " Address: " + peer.deviceAddress)
-                    if(peer.status == WifiP2pDevice.AVAILABLE) {
+                    if(peer.status == WifiP2pDevice.AVAILABLE || peer.status == WifiP2pDevice.INVITED) {
                         activity.connect(WifiP2pConfig().apply {
                             deviceAddress= peer.deviceAddress
                             wps.setup = WpsInfo.PBC
