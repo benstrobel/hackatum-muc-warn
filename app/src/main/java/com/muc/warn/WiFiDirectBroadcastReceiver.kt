@@ -41,7 +41,7 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 Log.d(TAG, "Received WIFI_P2P_STATE_CHANGED_ACTION Event | Value " + state)
                 when(state) {
                     WifiP2pManager.WIFI_P2P_STATE_ENABLED -> {
-                        //activity.setIsWifiP2pEnabled(true)
+                        activity.setIsWifiP2pEnabled(true)
                     }
                 }
             }

@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         val TAG = "MainActivity"
         val INITIAL_PERMISSION_CHECK_ID = 1
-        val REQUIRED_PERMISSION_ARRAY = if(android.os.Build.VERSION.SDK_INT < 33) arrayOf(Manifest.permission.ACCESS_FINE_LOCATION) else arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        val REQUIRED_PERMISSION_ARRAY = if(android.os.Build.VERSION.SDK_INT < 33) arrayOf(Manifest.permission.ACCESS_FINE_LOCATION) else arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.NEARBY_WIFI_DEVICES)
     }
 
     private lateinit var wiFiDirectReceiver: WiFiDirectBroadcastReceiver
@@ -83,23 +83,32 @@ class MainActivity : ComponentActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == INITIAL_PERMISSION_CHECK_ID) {
-            if(!permissions.contentEquals(REQUIRED_PERMISSION_ARRAY)) {
-                Log.e(TAG, "Closing app becuase permissions were denied")
-                this.finishAffinity() // quitting the app
+            if(!grantResults.toList().toTypedArray().contentEquals(Array(REQUIRED_PERMISSION_ARRAY.size){0})) {
+                requestPermissions(REQUIRED_PERMISSION_ARRAY, INITIAL_PERMISSION_CHECK_ID)
+                Log.d(TAG, "Reqrequesting permissions because not all of them were granted")
             }
         }
     }
 
     // Done
-    @SuppressLint("MissingPermission")
     fun discover() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.NEARBY_WIFI_DEVICES
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.e(TAG, "Missing permission before enabling discovery")
+        }
         manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
                 Log.d(TAG, "Discovery init successfully")
             }
 
             override fun onFailure(reasonCode: Int) {
-                Log.e(TAG, "Discovery init failed")
+                Log.e(TAG, "Discovery init failed reason: " + reasonCode)
             }
         })
     }
