@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.muc_warn.busineslogic.PeerToPeerManager
 import com.example.muc_warn.busineslogic.wifidirect.NewConnectedPeer
-import com.example.muc_warn.busineslogic.wifidirect.WiFiDirectManager
+import com.example.muc_warn.busineslogic.wifidirect.WiFiDirectServiceManager
 import com.example.muc_warn.models.NavigationViewModel
 import com.example.muc_warn.ui.theme.MucWarnTheme
 import com.example.muc_warn.views.InfoView
@@ -21,12 +21,12 @@ import com.example.muc_warn.views.SettingView
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var wiFiDirectManager: WiFiDirectManager
+    private lateinit var wiFiDirectServiceManager: WiFiDirectServiceManager
     private lateinit var p2pManager: PeerToPeerManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         p2pManager = PeerToPeerManager()
-        wiFiDirectManager = WiFiDirectManager(this) { newPeer: NewConnectedPeer -> p2pManager.newConnectionPeerConsumer(newPeer) }
+        wiFiDirectServiceManager = WiFiDirectServiceManager(this) { newPeer: NewConnectedPeer -> p2pManager.newConnectionPeerConsumer(newPeer) }
         setContent {
             MucWarnTheme {
                 // A surface container using the 'background' color from the theme
@@ -60,16 +60,16 @@ class MainActivity : ComponentActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        wiFiDirectManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        //wiFiDirectManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onResume() {
         super.onResume()
-        wiFiDirectManager.onResume()
+        //wiFiDirectManager.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        wiFiDirectManager.onPause()
+        //wiFiDirectManager.onPause()
     }
 }
