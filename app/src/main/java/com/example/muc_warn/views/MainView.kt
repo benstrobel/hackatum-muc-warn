@@ -77,7 +77,7 @@ fun MainView(navController: NavController, viewModel: NavigationViewModel) {
             ) {
                Icon(painter = painterResource(id = R.drawable.affection), contentDescription = "", tint= Color.DarkGray)
                 Spacer(modifier = Modifier.padding(10.dp))
-                Text("No Alerts in you region", color = Color.Black)
+                Text("No Alerts in your region", color = Color.Black)
             }
         } else {
             LazyColumn(
