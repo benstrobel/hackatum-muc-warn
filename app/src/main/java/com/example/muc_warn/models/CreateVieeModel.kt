@@ -37,6 +37,10 @@ class CreateViewModel : ViewModel() {
         alert.value = alert.value.copy(description = description)
     }
 
+    fun onThreadLvlChange(number: Int) {
+        alert.value = alert.value.copy(threadLevel = number)
+    }
+
     fun onPostDateSelected(date: Date) {
         alert.value = alert.value.copy(postDate = date)
     }

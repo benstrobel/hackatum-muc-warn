@@ -2,6 +2,7 @@ package com.example.muc_warn.views
 
 import android.widget.DatePicker
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -29,7 +33,9 @@ import com.example.muc_warn.components.WarningCard
 import com.example.muc_warn.models.CreateViewModel
 import com.example.muc_warn.models.NavigationViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class
+)
 @Composable
 fun CreateAlertView(
     navController: NavController,
@@ -38,6 +44,7 @@ fun CreateAlertView(
 ) {
 
     var createViewModel = CreateViewModel()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         topBar = {
@@ -119,9 +126,27 @@ fun CreateAlertView(
             }
 
             item {
+                Column {
+                    Text("Thread Level", color = Color.Black)
+                    Spacer(modifier = Modifier.padding(5.dp))
+                    Slider(
+                        value = createViewModel.alert.value.threadLevel.toFloat(),
+                        onValueChange = {createViewModel.onThreadLvlChange(it.toInt())},
+                        valueRange = 1f..5f,
+                        steps = 1,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            }
+
+            item {
                 Button(
                     onClick = {
                         p2p.addToAlertsToShare(createViewModel.alert.value)
+                        keyboardController?.hide()
+                        createViewModel = CreateViewModel()
                     }, modifier = Modifier.fillMaxSize(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
