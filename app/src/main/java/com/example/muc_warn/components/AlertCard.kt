@@ -47,7 +47,7 @@ fun AlertCard(alert: Alert) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.onBackground,
+                Color(0xFFEEF1EE),
                 shape = RoundedCornerShape(8.dp)
             )
             .border(1.dp, Color.White, shape = RoundedCornerShape(8.dp))

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.muc_warn.busineslogic.PeerToPeerManager
 import com.example.muc_warn.components.BottomBar.BottomNavBar
+import com.example.muc_warn.components.BottomBar.Screen
 import com.example.muc_warn.components.IndicatorTopBar
 import com.example.muc_warn.components.InternetConnectionChecker
 import com.example.muc_warn.components.WarningCard
@@ -147,6 +148,8 @@ fun CreateAlertView(
                         p2p.addToAlertsToShare(createViewModel.alert.value)
                         keyboardController?.hide()
                         createViewModel = CreateViewModel()
+                        navController.navigate("warnings")
+                        viewModel.currentScreen.value = Screen.Warnings
                     }, modifier = Modifier.fillMaxSize(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
