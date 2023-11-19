@@ -3,6 +3,7 @@ package com.example.muc_warn.schema
 import java.util.Date
 
 data class Alert(
+    val id: Int,
     val senderName: String,
     val title: String,
     val description: String,
