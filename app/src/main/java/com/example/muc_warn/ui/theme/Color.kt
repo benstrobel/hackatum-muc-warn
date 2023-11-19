@@ -14,7 +14,6 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val BackgroundLight = Color(0xFFEEF1EE)
-val BackgroundDark = Color(0xFF48494D)
 
 val OnBackgroundLight = Color(0xFFFBFEFB)
 val OnBackgroundDark = Color(0xFF3A3B42)
