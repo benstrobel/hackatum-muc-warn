@@ -1,10 +1,8 @@
 package com.example.muc_warn.busineslogic
 
-import android.util.Log
 import com.example.muc_warn.busineslogic.wifidirect.NewConnectedPeer
 import com.example.muc_warn.schema.Alert
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -37,10 +35,7 @@ class PeerToPeerManager() {
 
         println("Pre read " + value.macAddress)
         val s = StringBuilder()
-        for (alert in alertsToShare) {
-            s.append(gson.toJson(alertsToShare))
-        }
-
+        s.append(gson.toJson(alertsToShare))
         val msg = s.toString() + "\n"
         val barray = msg.toByteArray(Charsets.UTF_8)
         value.outputStream.write(barray)
@@ -66,7 +61,7 @@ class PeerToPeerManager() {
                     }
                 }
             } catch (e: Exception) {
-                println("Error while parsing JSON")
+                println("Error while parsing JSON: $e")
             }
         }
         value.closePeer()
