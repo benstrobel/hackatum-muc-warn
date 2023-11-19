@@ -16,7 +16,7 @@ class NavigationViewModel(
 
     var isNetworkAvailable: MutableState<Boolean> = mutableStateOf(false)
 
-    var mutableListItems: MutableList<Screen> = Screen.Items.list.toMutableList()
+    var mutableListItems: MutableList<Screen> = Screen.Items.listValidated.toMutableList()
     val alertList = mutableStateListOf<Alert>()
     val ptp: PeerToPeerManager
 
