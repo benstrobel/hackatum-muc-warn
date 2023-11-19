@@ -73,7 +73,7 @@ import com.google.android.gms.maps.model.LatLng
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var wiFiDirectManager: WiFiDirectManager
+    public lateinit var wiFiDirectManager: WiFiDirectManager
     private lateinit var p2pManager: PeerToPeerManager
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationCallback: LocationCallback

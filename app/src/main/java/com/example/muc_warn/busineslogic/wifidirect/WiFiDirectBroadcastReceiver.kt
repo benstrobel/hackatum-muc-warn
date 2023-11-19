@@ -85,6 +85,9 @@ class WiFiDirectBroadcastReceiver (private val manager: WifiP2pManager, private 
                 val networkInfo: NetworkInfo? = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO) as NetworkInfo?
                 Log.d(this.javaClass.name, "Received WIFI_P2P_CONNECTION_CHANGED_ACTION Event | State: " + networkInfo?.state)
+                if(networkInfo?.state == NetworkInfo.State.DISCONNECTED) {
+                    wiFiDirectManager.closePeerConnection("")
+                }
                 manager.let { mngr ->
                     if (networkInfo?.isConnected == true) {
                         Log.d(TAG, "NetInfo is connected")
