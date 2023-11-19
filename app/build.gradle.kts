@@ -47,7 +47,7 @@ android {
 }
 
 dependencies {
-
+    implementation("com.google.code.gson:gson:2.8.9")
     val nav_version = "2.7.5"
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
