@@ -19,7 +19,7 @@ class WiFiDirectServiceDiscovery(
         val SERVICE_NAME = "peerguard"
         val SERVICE_TYPE = "_presence._tcp"
         val VERSION = "1.0.0"
-        val timeout: Long = 5000
+        val timeout: Long = 2000
     }
 
     val runnable = WiFiDirectServiceDiscoveryRunnable(handler, {discoverService()}, timeout)
@@ -63,22 +63,14 @@ class WiFiDirectServiceDiscovery(
 
         val servListener =
             WifiP2pManager.DnsSdServiceResponseListener { instanceName, registrationType, srcDevice ->
-                Log.d(
-                    TAG,
-                    "In Serv Listener " + instanceName + " " + registrationType + " " + srcDevice.deviceName
-                )
                 if (instanceName.equals(INSTANCE_NAME)) {
-                    Log.d(TAG, "Is our service")
                     onServiceDiscovered(WiFiP2pService(srcDevice, instanceName, registrationType))
                 }
             }
 
         val txtListener =
             WifiP2pManager.DnsSdTxtRecordListener { fullDomainName, txtRecordMap, srcDevice ->
-                Log.d(
-                    TAG,
-                    "Found Service " + fullDomainName + " " + txtRecordMap["servicename"] + " " + txtRecordMap["version"] + " " + srcDevice.deviceName
-                )
+               // Log.d(TAG, "Found Service " + fullDomainName + " " + txtRecordMap["servicename"] + " " + txtRecordMap["version"] + " " + srcDevice.deviceName)
             }
 
         manager.setDnsSdResponseListeners(channel, servListener, txtListener)
@@ -91,7 +83,7 @@ class WiFiDirectServiceDiscovery(
         manager.addServiceRequest(channel, serviceRequest,
             object : WifiP2pManager.ActionListener {
                 override fun onSuccess() {
-                    Log.d(TAG,"Added service discovery request")
+                    //Log.d(TAG,"Added service discovery request")
                 }
 
                 override fun onFailure(arg0: Int) {

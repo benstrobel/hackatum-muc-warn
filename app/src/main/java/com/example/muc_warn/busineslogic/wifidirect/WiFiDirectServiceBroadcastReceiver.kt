@@ -31,7 +31,7 @@ class WiFiDirectServiceBroadcastReceiver(
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                 //manager.requestPeers(channel, peerListListener)
-                Log.d(this.javaClass.name, "Received WIFI_P2P_PEERS_CHANGED_ACTION Event")
+                //Log.d(this.javaClass.name, "Received WIFI_P2P_PEERS_CHANGED_ACTION Event")
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
                 val networkInfo: NetworkInfo? = intent
@@ -68,9 +68,13 @@ class WiFiDirectServiceBroadcastReceiver(
         println("starting server server")
         val thread = Thread(
             Runnable {
-                val serverSocket = ServerSocket(8888)
-                val client = serverSocket.accept()
-                onServiceConnected(ConnectedWiFiP2PService(service, client.getInputStream(), client.getOutputStream()))
+                try {
+                    val serverSocket = ServerSocket(8888)
+                    val client = serverSocket.accept()
+                    onServiceConnected(ConnectedWiFiP2PService(service, client.getInputStream(), client.getOutputStream()))
+                } catch (ex: Exception) {
+
+                }
             }
         )
         thread.start()
@@ -80,10 +84,14 @@ class WiFiDirectServiceBroadcastReceiver(
         println("connect socket")
         val thread = Thread(
             Runnable {
-                val socket = Socket()
-                socket.bind(null)
-                socket.connect((InetSocketAddress(groupOwnerAddress, 8888)), 500)
-                onServiceConnected(ConnectedWiFiP2PService(service, socket.getInputStream(), socket.getOutputStream()))
+                try {
+                    val socket = Socket()
+                    socket.bind(null)
+                    socket.connect((InetSocketAddress(groupOwnerAddress, 8888)), 500)
+                    onServiceConnected(ConnectedWiFiP2PService(service, socket.getInputStream(), socket.getOutputStream()))
+                } catch (ex: Exception) {
+
+                }
             }
         )
         thread.start()
