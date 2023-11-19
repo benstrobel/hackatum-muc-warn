@@ -147,12 +147,12 @@ fun CreateAlertView(
                     onClick = {
                         p2p.addToAlertsToShare(createViewModel.alert.value)
                         keyboardController?.hide()
-                        /*navController.navigate(
+                        navController.navigate(
                             if (createViewModel.alert.value.threadLevel != 0) {
                                 "warnings"
                             } else {
                                 "info"
-                            })*/
+                            })
                         viewModel.currentScreen.value = if (createViewModel.alert.value.threadLevel != 0) {
                             Screen.Warnings
                         } else {
