@@ -32,14 +32,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.muc_warn.busineslogic.PeerToPeerManager
+import com.example.muc_warn.busineslogic.wifidirect.NewConnectedPeer
+import com.example.muc_warn.busineslogic.wifidirect.WiFiDirectManager
 import com.example.muc_warn.components.BottomBar.BottomNavBar
 import com.example.muc_warn.components.BottomBar.Screen
-import com.example.muc_warn.components.BottomBar.hasPermission
 import com.example.muc_warn.components.IndicatorTopBar
 import com.example.muc_warn.components.InternetConnectionChecker
 import com.example.muc_warn.models.NavigationViewModel
@@ -65,6 +66,9 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var wiFiDirectManager: WiFiDirectManager
+    private lateinit var p2pManager: PeerToPeerManager
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationCallback: LocationCallback
     var locationRequired: Boolean = false
@@ -78,6 +82,7 @@ class MainActivity : ComponentActivity() {
         if(locationRequired) {
             startLocationUpdates()
         }
+        wiFiDirectManager.onResume()
     }
 
     @SuppressLint("MissingPermission")
@@ -104,10 +109,13 @@ class MainActivity : ComponentActivity() {
         locationCallback?.let{
             fusedLocationProviderClient?.removeLocationUpdates(it)
         }
+        wiFiDirectManager.onPause()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        p2pManager = PeerToPeerManager()
+        wiFiDirectManager = WiFiDirectManager(this) { newPeer: NewConnectedPeer -> p2pManager.newConnectionPeerConsumer(newPeer) }
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -132,7 +140,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    val navigationViewModel = NavigationViewModel()
+                    val navigationViewModel = NavigationViewModel(p2pManager)
                     val context: Context = LocalContext.current
 
                     if(validateCertificate(getCertificate(context = context))) {
@@ -216,4 +224,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    @Deprecated(message = "Replace, see deprecation msg of super func")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        wiFiDirectManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
 }
