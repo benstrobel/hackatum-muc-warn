@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.preference.PreferenceManager
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,9 +47,7 @@ import com.example.muc_warn.models.NavigationViewModel
 @Composable
 fun SettingView(navController: NavController, viewModel: NavigationViewModel) {
     val context: Context = LocalContext.current
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    var text: MutableState<String> = mutableStateOf(getCertificate(context = context))
+    var checked by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
@@ -79,28 +81,7 @@ fun SettingView(navController: NavController, viewModel: NavigationViewModel) {
             }
 
             item {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = text.value,
-                    onValueChange = { text.value = it },
-                    label = { Text("Certificate") },
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        saveCertificate(context = context, certificate = text.value);
-                        keyboardController?.hide();
-                        if(validateCertificate(getCertificate(context))) {
-                            viewModel.mutableListItems = Screen.Items.listValidated.toMutableList()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor =  MaterialTheme.colorScheme.primary, contentColor = Color.White)
-                ) {
-                    Text("Upload Certificate")
+                Row {
                 }
             }
 

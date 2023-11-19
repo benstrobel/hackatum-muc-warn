@@ -102,6 +102,23 @@ fun CreateAlertView(navController: NavController, viewModel: NavigationViewModel
                 )
             }
 
+            item {
+                OutlinedTextField(
+                    value = createViewModel.alert.value.locationString,
+                    onValueChange = { createViewModel.onLocationStrinChange(it) },
+                    label = { Text("Location") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+            }
+
+            item {
+                Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxSize(),
+                    colors=ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = Color.White)) {
+                    Text("Send Alert")
+                }
+            }
         }
     }
 }

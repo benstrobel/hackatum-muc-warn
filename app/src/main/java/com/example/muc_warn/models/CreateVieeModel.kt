@@ -47,4 +47,8 @@ class CreateViewModel : ViewModel() {
     fun onLocationSelected(location: Location) {
         alert.value = alert.value.copy(location = location)
     }
+
+    fun onLocationStrinChange(location: String) {
+        alert.value = alert.value.copy(locationString = location)
+    }
 }
