@@ -147,9 +147,17 @@ fun CreateAlertView(
                     onClick = {
                         p2p.addToAlertsToShare(createViewModel.alert.value)
                         keyboardController?.hide()
-                        createViewModel = CreateViewModel()
-                        navController.navigate("warnings")
-                        viewModel.currentScreen.value = Screen.Warnings
+                        navController.navigate(
+                            if (createViewModel.alert.value.threadLevel != 0) {
+                                "warnings"
+                            } else {
+                                "info"
+                            })
+                        viewModel.currentScreen.value = if (createViewModel.alert.value.threadLevel != 0) {
+                            Screen.Warnings
+                        } else {
+                            Screen.Info
+                        }
                     }, modifier = Modifier.fillMaxSize(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,

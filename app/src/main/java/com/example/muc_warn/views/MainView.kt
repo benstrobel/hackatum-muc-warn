@@ -78,7 +78,7 @@ fun MainView(navController: NavController, viewModel: NavigationViewModel) {
                 }
             }
 
-            items(viewModel.alertList) { alert ->
+            items(viewModel.alertList.filter { alert -> alert.threadLevel != 0 }) { alert ->
                 AlertCard(alert = alert)
                 Spacer(modifier = Modifier.height(16.dp))
             }

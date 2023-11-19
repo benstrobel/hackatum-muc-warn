@@ -1,6 +1,8 @@
 package com.example.muc_warn.views
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -41,6 +43,26 @@ fun InfoView(navController: NavController, viewModel: NavigationViewModel) {
     ) { innerPadding ->
         InternetConnectionChecker(viewModel.isNetworkAvailable, innerPadding, viewModel = viewModel)
         // Use a LazyColumn for better performance
-        Text("InfoView")
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+        ) {
+            if (!viewModel.isNetworkAvailable.value) {
+                item {
+                    WarningCard(
+                        title = "Achtung",
+                        subtitle = "Es konnte keine Verbindung zum Internet aufgebaut werden. Du befindest dich im Notfallmodus."
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
+            items(viewModel.alertList.filter { alert -> alert.threadLevel == 0 }) { alert ->
+                AlertCard(alert = alert)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
     }
 }
