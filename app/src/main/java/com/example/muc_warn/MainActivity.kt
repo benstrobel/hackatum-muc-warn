@@ -48,9 +48,6 @@ import com.example.muc_warn.ui.theme.MucWarnTheme
 import com.example.muc_warn.views.CreateAlertView
 import com.example.muc_warn.views.InfoView
 import com.example.muc_warn.views.MainView
-import com.example.muc_warn.views.SettingView
-import com.example.muc_warn.views.getCertificate
-import com.example.muc_warn.views.validateCertificate
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -135,11 +132,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val navigationViewModel = NavigationViewModel(p2pManager)
-                    val context: Context = LocalContext.current
-
-                    if(validateCertificate(getCertificate(context = context))) {
-                        navigationViewModel.mutableListItems = Screen.Items.listValidated.toMutableList()
-                    }
 
                     NavHost(navController = navController, startDestination = "warnings" ) {
                         composable("warnings") {
@@ -153,9 +145,6 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("create") {
                             CreateAlertView(navController = navController, viewModel = navigationViewModel, p2pManager)
-                        }
-                        composable("settings") {
-                            SettingView(navController = navController, viewModel = navigationViewModel)
                         }
                     }
                 }
@@ -188,7 +177,6 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     currentScreenId = viewModel.currentScreen.value.id,
                     onItemSelected = {viewModel.currentScreen.value = it},
-                    viewModel = viewModel
                 )
             }
         ) { innerPadding ->

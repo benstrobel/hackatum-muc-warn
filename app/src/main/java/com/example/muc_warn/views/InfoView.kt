@@ -37,7 +37,7 @@ fun InfoView(navController: NavController, viewModel: NavigationViewModel) {
                 navController = navController,
                 currentScreenId = viewModel.currentScreen.value.id,
                 onItemSelected = {viewModel.currentScreen.value = it},
-                viewModel = viewModel
+
             )
         }
     ) { innerPadding ->

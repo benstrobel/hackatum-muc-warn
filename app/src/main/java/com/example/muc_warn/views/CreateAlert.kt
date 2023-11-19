@@ -56,7 +56,7 @@ fun CreateAlertView(
                 navController = navController,
                 currentScreenId = viewModel.currentScreen.value.id,
                 onItemSelected = { viewModel.currentScreen.value = it },
-                viewModel = viewModel
+
             )
         }
     ) { innerPadding ->
@@ -127,7 +127,7 @@ fun CreateAlertView(
             }
 
             item {
-                Column {
+                Column(modifier = Modifier.padding(8.dp)) {
                     Text("Thread Level", color = Color.Black)
                     Spacer(modifier = Modifier.padding(5.dp))
                     Slider(
@@ -147,12 +147,12 @@ fun CreateAlertView(
                     onClick = {
                         p2p.addToAlertsToShare(createViewModel.alert.value)
                         keyboardController?.hide()
-                        navController.navigate(
+                        /*navController.navigate(
                             if (createViewModel.alert.value.threadLevel != 0) {
                                 "warnings"
                             } else {
                                 "info"
-                            })
+                            })*/
                         viewModel.currentScreen.value = if (createViewModel.alert.value.threadLevel != 0) {
                             Screen.Warnings
                         } else {
