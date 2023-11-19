@@ -46,7 +46,7 @@ fun BottomNavBar(
             }
         }
     }
-}
+
 
 @ExperimentalAnimationApi
 @Composable

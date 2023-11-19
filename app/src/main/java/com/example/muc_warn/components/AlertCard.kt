@@ -162,7 +162,7 @@ fun getColorBasedOnNumber(number: Int): Color {
 
     // Assuming your numbers range from 0 to 3, adjust the conditions based on your specific range
     return when {
-        number < 0 -> Color.Gray
+        number <= 0 -> Color.Gray
         number == 1 -> colorRange[0]
         number == 2 -> colorRange[1]
         number == 3 -> colorRange[2]
