@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.muc_warn.busineslogic.PeerToPeerManager
 import com.example.muc_warn.components.BottomBar.BottomNavBar
 import com.example.muc_warn.components.IndicatorTopBar
 import com.example.muc_warn.components.InternetConnectionChecker
@@ -30,7 +31,11 @@ import com.example.muc_warn.models.NavigationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun CreateAlertView(navController: NavController, viewModel: NavigationViewModel) {
+fun CreateAlertView(
+    navController: NavController,
+    viewModel: NavigationViewModel,
+    p2p: PeerToPeerManager
+) {
 
     var createViewModel = CreateViewModel()
 
@@ -42,7 +47,7 @@ fun CreateAlertView(navController: NavController, viewModel: NavigationViewModel
             BottomNavBar(
                 navController = navController,
                 currentScreenId = viewModel.currentScreen.value.id,
-                onItemSelected = {viewModel.currentScreen.value = it},
+                onItemSelected = { viewModel.currentScreen.value = it },
                 viewModel = viewModel
             )
         }
@@ -114,8 +119,15 @@ fun CreateAlertView(navController: NavController, viewModel: NavigationViewModel
             }
 
             item {
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxSize(),
-                    colors=ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = Color.White)) {
+                Button(
+                    onClick = {
+                        p2p.addToAlertsToShare(createViewModel.alert.value)
+                    }, modifier = Modifier.fillMaxSize(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
+                ) {
                     Text("Send Alert")
                 }
             }

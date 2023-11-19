@@ -5,13 +5,14 @@ import androidx.lifecycle.ViewModel
 import com.example.muc_warn.schema.Alert
 import com.example.muc_warn.schema.Location
 import java.util.Date
+import java.util.UUID
 
 class CreateViewModel : ViewModel() {
 
     // Define the alert data using MutableState
     val alert = mutableStateOf(
         Alert(
-            id = "789",
+            id = UUID.randomUUID().toString(),
             senderName = "",
             title = "",
             description = "",

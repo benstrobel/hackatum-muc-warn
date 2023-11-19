@@ -59,6 +59,13 @@ class PeerToPeerManager() {
            handler.post(runnable)*/
     }
 
+    fun addToAlertsToShare(alert: Alert){
+        alertsToShare.add(alert)
+        newAlerts.add(alert)
+        callback?.onCallback(newAlerts)
+        newAlerts.clear()
+    }
+
     fun newConnectionPeerConsumer(value: NewConnectedPeer) {
         val gsonBuilder = GsonBuilder()
         gsonBuilder.setDateFormat("yyyy-MM-dd")

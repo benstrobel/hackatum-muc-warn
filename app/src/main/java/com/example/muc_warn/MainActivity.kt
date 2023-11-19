@@ -152,7 +152,7 @@ class MainActivity : ComponentActivity() {
                             LocationScreen(this@MainActivity,currentLocation, navigationViewModel, navController)
                         }
                         composable("create") {
-                            CreateAlertView(navController = navController, viewModel = navigationViewModel)
+                            CreateAlertView(navController = navController, viewModel = navigationViewModel, p2pManager)
                         }
                         composable("settings") {
                             SettingView(navController = navController, viewModel = navigationViewModel)
