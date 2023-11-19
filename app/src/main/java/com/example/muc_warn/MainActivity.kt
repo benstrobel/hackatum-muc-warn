@@ -11,13 +11,24 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -29,8 +40,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -43,6 +57,7 @@ import com.example.muc_warn.components.BottomBar.BottomNavBar
 import com.example.muc_warn.components.BottomBar.Screen
 import com.example.muc_warn.components.IndicatorTopBar
 import com.example.muc_warn.components.InternetConnectionChecker
+import com.example.muc_warn.components.getColorBasedOnNumber
 import com.example.muc_warn.models.NavigationViewModel
 import com.example.muc_warn.ui.theme.MucWarnTheme
 import com.example.muc_warn.views.CreateAlertView
@@ -182,15 +197,41 @@ class MainActivity : ComponentActivity() {
         ) { innerPadding ->
             InternetConnectionChecker(viewModel.isNetworkAvailable, innerPadding, viewModel = viewModel)
             // Use a LazyColumn for better performance
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)) {
+
                 Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Color(0xFFEEF1EE),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .border(1.dp, Color.White, shape = RoundedCornerShape(8.dp))
+                        .padding(16.dp)
+                        .padding(innerPadding),
+                    verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Your Location: ${currentLocation.latitude}/${currentLocation.latitude}", color = Color.Black)
+                    Row(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .border(
+                                2.dp, MaterialTheme.colorScheme.primary, shape = CircleShape
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center) {
+                        Icon(
+                            Icons.Outlined.LocationOn, // Replace with your icon resource
+                            contentDescription = null, // Provide a content description for accessibility
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    Text("Your Location: ", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Text("Latitude: ${currentLocation.latitude}", color = Color.Black)
+                    Text("Longitude: ${currentLocation.latitude}", color = Color.Black)
+
                     Button(onClick={
                         if(permissions.all {
                                 ContextCompat.checkSelfPermission(context,it) == PackageManager.PERMISSION_GRANTED
@@ -203,7 +244,7 @@ class MainActivity : ComponentActivity() {
                         Text(text="Get your location")
                     }
                 }
-            }
+
         }
     }
 
