@@ -230,7 +230,7 @@ class MainActivity : ComponentActivity() {
 
                     Text("Your Location: ", color = Color.Black, fontWeight = FontWeight.Bold)
                     Text("Latitude: ${currentLocation.latitude}", color = Color.Black)
-                    Text("Longitude: ${currentLocation.latitude}", color = Color.Black)
+                    Text("Longitude: ${currentLocation.longitude}", color = Color.Black)
 
                     Button(onClick={
                         if(permissions.all {
