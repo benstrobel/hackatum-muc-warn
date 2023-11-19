@@ -10,12 +10,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.muc_warn.components.BottomBar.BottomNavBar
 import com.example.muc_warn.components.BottomBar.Screen
 import com.example.muc_warn.components.BottomBar.hasPermission
+import com.example.muc_warn.components.IndicatorTopBar
+import com.example.muc_warn.components.InternetConnectionChecker
 import com.example.muc_warn.models.NavigationViewModel
 import com.example.muc_warn.ui.theme.MucWarnTheme
 import com.example.muc_warn.views.CreateAlertView
@@ -48,7 +56,13 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 class MainActivity : ComponentActivity() {
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -133,7 +147,7 @@ class MainActivity : ComponentActivity() {
                             InfoView(navController = navController, viewModel = navigationViewModel)
                         }
                         composable("map") {
-                            LocationScreen(this@MainActivity,currentLocation)
+                            LocationScreen(this@MainActivity,currentLocation, navigationViewModel, navController)
                         }
                         composable("create") {
                             CreateAlertView(navController = navController, viewModel = navigationViewModel)
@@ -147,8 +161,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
     @Composable
-    private fun LocationScreen(context: Context, currentLocation: LatLng) {
+    private fun LocationScreen(context: Context, currentLocation: LatLng, viewModel: NavigationViewModel, navController: NavHostController) {
         val launcheMultiplePermissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                 permissionMaps ->
             val areGranted = permissionMaps.values.reduce{acc, next -> acc && next}
@@ -162,23 +177,41 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Your Location: ${currentLocation.latitude}/${currentLocation.latitude}", color = Color.Black)
-                Button(onClick={
-                    if(permissions.all {
-                            ContextCompat.checkSelfPermission(context,it) == PackageManager.PERMISSION_GRANTED
-                        }) {
-                        startLocationUpdates()
-                    } else {
-                        launcheMultiplePermissions.launch(permissions)
+        Scaffold(
+            topBar = {
+                IndicatorTopBar(isNetworkAvailable = viewModel.isNetworkAvailable, title = "PeerGuard")
+            },
+            bottomBar = {
+                BottomNavBar(
+                    navController = navController,
+                    currentScreenId = viewModel.currentScreen.value.id,
+                    onItemSelected = {viewModel.currentScreen.value = it},
+                    viewModel = viewModel
+                )
+            }
+        ) { innerPadding ->
+            InternetConnectionChecker(viewModel.isNetworkAvailable, innerPadding, viewModel = viewModel)
+            // Use a LazyColumn for better performance
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Your Location: ${currentLocation.latitude}/${currentLocation.latitude}", color = Color.Black)
+                    Button(onClick={
+                        if(permissions.all {
+                                ContextCompat.checkSelfPermission(context,it) == PackageManager.PERMISSION_GRANTED
+                            }) {
+                            startLocationUpdates()
+                        } else {
+                            launcheMultiplePermissions.launch(permissions)
+                        }
+                    }) {
+                        Text(text="Get your location")
                     }
-                }) {
-                    Text(text="Get your location")
                 }
             }
         }
