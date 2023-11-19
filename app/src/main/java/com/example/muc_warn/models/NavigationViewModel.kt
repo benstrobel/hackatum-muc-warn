@@ -24,8 +24,8 @@ class NavigationViewModel(
         ptp  = p2pManager
         //callback is a bit ugly but hey it's effecient :P
         class CallbackImpl : FetchCallback {
-            override fun onCallback(arr: List<Alert>) {
-                alertList.addAll(arr)
+            override fun onCallback(list: List<Alert>) {
+                alertList.addAll(list.reversed())
             }
         }
         val cb = CallbackImpl()
