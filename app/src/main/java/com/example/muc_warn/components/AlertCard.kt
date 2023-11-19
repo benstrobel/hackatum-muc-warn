@@ -175,7 +175,7 @@ fun getColorBasedOnNumber(number: Int): Color {
 @Composable
 fun AlertCardPreview() {
     val alert = Alert(
-        id = 2,
+        id = "456",
         senderName = "Lena Müller",
         title = "Amtliche Warnung vor Gewitter",
         description = "Es wird erwartet, dass ein starkes Gewitter die Region um Ludwigsstraße 3 in München in den nächsten Stunden erreichen wird. Es besteht die Möglichkeit von heftigem Regen, starken Windböen und Blitzschlägen. Bitte nehmen Sie Schutzmaßnahmen, insbesondere im Freien, um Ihre Sicherheit zu gewährleisten. Vermeiden Sie offene Flächen und suchen Sie geschützte Bereiche auf.",

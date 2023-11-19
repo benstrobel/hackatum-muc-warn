@@ -11,7 +11,7 @@ class CreateViewModel : ViewModel() {
     // Define the alert data using MutableState
     val alert = mutableStateOf(
         Alert(
-            id = 1,
+            id = "789",
             senderName = "",
             title = "",
             description = "",

@@ -23,7 +23,7 @@ class PeerToPeerManager() {
     init {
         alertsToShare.add(
             Alert(
-                id = 1,
+                id = "123",
                 senderName = "Lasser Tobias",
                 title = "Starkregenwarnung",
                 description = "Es wird erwartet, dass in den nächsten Stunden Starkregen die Region um Hauptstraße 15 in Berlin erreichen wird. Mögliche Auswirkungen sind Überschwemmungen und rutschige Straßen. Bitte nehmen Sie Vorsichtsmaßnahmen und vermeiden Sie unnötige Fahrten.",
